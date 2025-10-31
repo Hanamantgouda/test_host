@@ -1,4 +1,4 @@
-package com.hosting.UKCookHouse.Controller;
+package com.hosting.UKCookHouse.controller;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;

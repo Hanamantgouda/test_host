@@ -1,5 +1,7 @@
 package com.hosting.UKCookHouse.controller;
 
+import com.hosting.UKCookHouse.config.DatabaseConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +13,8 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 public class testController {
 
-    private static final String DB_URL = "jdbc:postgresql://ballast.proxy.rlwy.net:55922/railway";
-    private static final String DB_USERNAME = "postgres";
-    private static final String DB_PASSWORD = "IbTePzZPbbYkBfsbVyGbNKDLnKfbxzRD";
+    @Autowired
+    private DatabaseConfig dbConfig;
 
     @PostMapping("/login1")
     public Map<String, Object> loginUser(@RequestBody Map<String, String> userData) {
@@ -31,7 +32,10 @@ public class testController {
 
         String query = "SELECT user_id, username, email, password FROM users WHERE email = ?";
 
-        try (Connection con = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
+        try (Connection con = DriverManager.getConnection(
+                dbConfig.getDbUrl(),
+                dbConfig.getDbUsername(),
+                dbConfig.getDbPassword());
              PreparedStatement ps = con.prepareStatement(query)) {
 
             ps.setString(1, email);
@@ -40,7 +44,7 @@ public class testController {
             if (rs.next()) {
                 String storedHashedPassword = rs.getString("password");
 
-                //Verify password using BCrypt
+                // Verify password using BCrypt
                 if (BCrypt.checkpw(password, storedHashedPassword)) {
                     response.put("status", "success");
                     response.put("message", "Email and password verified successfully!");
@@ -61,6 +65,7 @@ public class testController {
             response.put("status", "error");
             response.put("message", "Database connection error: " + e.getMessage());
         }
+
         return response;
     }
 }
